@@ -1,5 +1,6 @@
 "use client";
 
+
 import { useState } from "react";
 import { motion } from "motion/react";
 import { colors, typography } from "../design-system";
@@ -20,6 +21,34 @@ interface Props {
   onItemChange?: (item: string) => void;
   streak?: number;
 }
+
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+  user: any;  // <-- ADD THIS
+}
+
+const handleSignOut = async () => {
+  const supabase = createClient();
+  await supabase.auth.signOut();
+  window.location.href = "/login";
+};
+
+const username = user?.user_metadata?.username || user?.email?.split("@")[0] || "Reader";
+const avatarInitial = username.charAt(0).toUpperCase();
+
+// In the profile section at bottom:
+<div className="flex items-center gap-3 mb-4">
+  <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold" style={{ background: "#C8A26A", color: "#0D0D0B" }}>
+    {avatarInitial}
+  </div>
+  <div className="flex-1 min-w-0">
+    <p className="text-sm font-medium truncate" style={{ color: "#F5F2EB" }}>{username}</p>
+    <p className="text-xs truncate" style={{ color: "#6D675E" }}>{user?.email || ""}</p>
+  </div>
+</div>
+
+
 
 export default function Sidebar({ activeItem = "home", onItemChange, streak = 0 }: Props) {
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
