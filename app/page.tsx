@@ -1,5 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "./lib/supabase-client";
 import { useState } from "react";
 import { motion } from "motion/react";
 import Sidebar from "./components/Sidebar";
