@@ -45,9 +45,6 @@ const palette = ["#C8A26A", "#7FA88A", "#8B8BC8", "#C8A88B", "#C88B8B", "#8BA8C8
 
 export default function Home() {
 
-  const [activeTab, setActiveTab] = useState("home");
-  const [activeSidebar, setActiveSidebar] = useState("home");
-
   // ===== AUTH GUARD =====
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
@@ -109,9 +106,7 @@ export default function Home() {
           <div className="flex gap-8">
             <div className="flex-1 min-w-0">
               <motion.div className="mb-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 300, damping: 25 }}>
-                <h1 className="text-2xl lg:text-4xl font-bold" style={{ color: colors.text.primary }}>
-                  Good morning, <span style={{ color: colors.accent.DEFAULT }}>Alex</span>
-                </h1>
+               const username = user?.user_metadata?.username || user?.email?.split("@")[0] || "Reader";
                 <p className="text-sm mt-1" style={{ color: colors.text.secondary }}>You are 65% through your current read</p>
               </motion.div>
               <div className="mb-10">
