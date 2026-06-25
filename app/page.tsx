@@ -44,8 +44,39 @@ const moodBooks = {
 const palette = ["#C8A26A", "#7FA88A", "#8B8BC8", "#C8A88B", "#C88B8B", "#8BA8C8"];
 
 export default function Home() {
+
   const [activeTab, setActiveTab] = useState("home");
   const [activeSidebar, setActiveSidebar] = useState("home");
+
+  // ===== AUTH GUARD =====
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) {
+        router.push("/login");
+      } else {
+        setUser(user);
+      }
+      setChecking(false);
+    });
+  }, [router]);
+
+  if (checking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#0D0D0B" }}>
+        <div className="w-8 h-8 border-2 border-[#C8A26A] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) return null;
+  // ===== END AUTH GUARD =====
+
+  const [activeTab, setActiveTab] = useState("home");  
 
   return (
     <div className="min-h-screen bg-[#0D0D0B]">
