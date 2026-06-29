@@ -1,124 +1,101 @@
+
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "motion/react";
 import { createClient } from "../lib/supabase-client";
+import { motion } from "motion/react";
+import { colors } from "../design-system";
 
-export default function SignupPage() {
+export default function Signup() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
-  const supabase = createClient();
+  const [error, setError] = useState("");
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setError("");
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { username },
-      },
-    });
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { username }
+        }
+      });
 
-    if (error) {
-      setError(error.message);
+      if (error) throw error;
+      alert("Check your email for confirmation link!");
+      router.push("/login");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    router.push("/");
-    router.refresh();
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "#0D0D0B" }}>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className="w-full max-w-md p-8 rounded-3xl"
-        style={{ background: "#171715", border: "1px solid #1e1e1b" }}
-      >
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "#C8A26A" }}>
-            <span className="text-lg font-bold text-[#0D0D0B]">C</span>
+    <div className="min-h-screen flex items-center justify-center bg-[#0D0D0B] p-4">
+      <motion.div className="w-full max-w-md">
+        <div className="text-center mb-10">
+          <div className="mx-auto w-16 h-16 rounded-3xl flex items-center justify-center text-4xl mb-4" style={{ background: colors.accent.DEFAULT }}>
+            C
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-[#F5F2EB]">Create account</h1>
-            <p className="text-sm text-[#6D675E]">Start tracking your reading life</p>
-          </div>
+          <h1 className="text-4xl font-bold">Join Chapter</h1>
+          <p className="text-lg mt-2" style={{ color: colors.text.secondary }}>Start your reading sanctuary</p>
         </div>
 
-        <form onSubmit={handleSignup} className="space-y-5">
-          {error && (
-            <div className="px-4 py-3 rounded-xl text-sm text-[#C77C7C] bg-[#C77C7C]/10 border border-[#C77C7C]/30">
-              {error}
-            </div>
-          )}
+        <form onSubmit={handleSignup} className="space-y-6">
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            className="w-full px-5 py-4 rounded-2xl bg-[#171715] border border-white/10 focus:border-[#C8A26A] outline-none"
+          />
 
-          <div>
-            <label className="block text-sm font-medium mb-2 text-[#A8A39A]">Username</label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              className="w-full px-4 py-3 rounded-xl text-sm outline-none bg-[#20201C] text-[#F5F2EB] border border-[#1e1e1b] focus:border-[#C8A26A]"
-              placeholder="bookworm_alex"
-            />
-          </div>
+          <input
+            type="email"
+            placeholder="Email address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="w-full px-5 py-4 rounded-2xl bg-[#171715] border border-white/10 focus:border-[#C8A26A] outline-none"
+          />
 
-          <div>
-            <label className="block text-sm font-medium mb-2 text-[#A8A39A]">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-4 py-3 rounded-xl text-sm outline-none bg-[#20201C] text-[#F5F2EB] border border-[#1e1e1b] focus:border-[#C8A26A]"
-              placeholder="you@example.com"
-            />
-          </div>
+          <input
+            type="password"
+            placeholder="Create password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="w-full px-5 py-4 rounded-2xl bg-[#171715] border border-white/10 focus:border-[#C8A26A] outline-none"
+          />
 
-          <div>
-            <label className="block text-sm font-medium mb-2 text-[#A8A39A]">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              className="w-full px-4 py-3 rounded-xl text-sm outline-none bg-[#20201C] text-[#F5F2EB] border border-[#1e1e1b] focus:border-[#C8A26A]"
-              placeholder="Min. 6 characters"
-            />
-          </div>
+          {error && <p className="text-red-400 text-sm">{error}</p>}
 
           <motion.button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 rounded-xl text-sm font-semibold bg-[#C8A26A] text-[#0D0D0B]"
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.98 }}
+            className="w-full py-4 rounded-2xl font-semibold text-lg"
+            style={{ background: colors.accent.DEFAULT }}
+            whileHover={{ scale: 1.02 }}
           >
-            {loading ? "Creating account..." : "Create account"}
+            {loading ? "Creating account..." : "Create Account"}
           </motion.button>
         </form>
 
-        <div className="mt-6 text-center">
-          <p className="text-sm text-[#6D675E]">
-            Already have an account?{" "}
-            <a href="/login" className="font-medium text-[#C8A26A] hover:underline">
-              Sign in
-            </a>
-          </p>
-        </div>
+        <p className="text-center mt-8 text-sm" style={{ color: colors.text.muted }}>
+          Already have an account?{" "}
+          <a href="/login" className="text-[#C8A26A]">Sign in</a>
+        </p>
       </motion.div>
     </div>
   );
