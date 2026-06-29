@@ -2,106 +2,94 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "motion/react";
 import { createClient } from "../lib/supabase-client";
+import { motion } from "motion/react";
+import { colors } from "../design-system";
 
-export default function LoginPage() {
+export default function Login() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
-  const supabase = createClient();
+  const [error, setError] = useState("");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setError("");
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
-      setError(error.message);
+      if (error) throw error;
+      router.push("/");
+    } catch (err: any) {
+      setError(err.message || "Invalid credentials");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    router.push("/");
-    router.refresh();
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "#0D0D0B" }}>
-      <motion.div
+    <div className="min-h-screen flex items-center justify-center bg-[#0D0D0B] p-4">
+      <motion.div 
+        className="w-full max-w-md"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className="w-full max-w-md p-8 rounded-3xl"
-        style={{ background: "#171715", border: "1px solid #1e1e1b" }}
       >
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "#C8A26A" }}>
-            <span className="text-lg font-bold text-[#0D0D0B]">C</span>
+        <div className="text-center mb-10">
+          <div className="mx-auto w-16 h-16 rounded-3xl flex items-center justify-center text-4xl mb-4" style={{ background: colors.accent.DEFAULT }}>
+            C
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-[#F5F2EB]">Welcome back</h1>
-            <p className="text-sm text-[#6D675E]">Sign in to continue</p>
-          </div>
+          <h1 className="text-4xl font-bold" style={{ color: colors.text.primary }}>Welcome back</h1>
+          <p className="text-lg mt-2" style={{ color: colors.text.secondary }}>Continue your reading journey</p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-5">
-          {error && (
-            <div className="px-4 py-3 rounded-xl text-sm text-[#C77C7C] bg-[#C77C7C]/10 border border-[#C77C7C]/30">
-              {error}
-            </div>
-          )}
-
+        <form onSubmit={handleLogin} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium mb-2 text-[#A8A39A]">Email</label>
             <input
               type="email"
+              placeholder="Email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-3 rounded-xl text-sm outline-none bg-[#20201C] text-[#F5F2EB] border border-[#1e1e1b] focus:border-[#C8A26A]"
-              placeholder="you@example.com"
+              className="w-full px-5 py-4 rounded-2xl bg-[#171715] border border-white/10 focus:border-[#C8A26A] outline-none text-white"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2 text-[#A8A39A]">Password</label>
             <input
               type="password"
+              placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-4 py-3 rounded-xl text-sm outline-none bg-[#20201C] text-[#F5F2EB] border border-[#1e1e1b] focus:border-[#C8A26A]"
-              placeholder="Enter your password"
+              className="w-full px-5 py-4 rounded-2xl bg-[#171715] border border-white/10 focus:border-[#C8A26A] outline-none text-white"
             />
           </div>
+
+          {error && <p className="text-red-400 text-sm">{error}</p>}
 
           <motion.button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 rounded-xl text-sm font-semibold bg-[#C8A26A] text-[#0D0D0B]"
-            whileHover={{ scale: 1.01 }}
+            className="w-full py-4 rounded-2xl font-semibold text-lg"
+            style={{ background: colors.accent.DEFAULT, color: colors.text.inverse }}
+            whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            {loading ? "Signing in..." : "Sign in"}
+            {loading ? "Signing in..." : "Sign In"}
           </motion.button>
         </form>
 
-        <div className="mt-6 text-center">
-          <p className="text-sm text-[#6D675E]">
-            Don't have an account?{" "}
-            <a href="/signup" className="font-medium text-[#C8A26A] hover:underline">
-              Sign up
-            </a>
-          </p>
-        </div>
+        <p className="text-center mt-8 text-sm" style={{ color: colors.text.muted }}>
+          Don't have an account?{" "}
+          <a href="/signup" className="text-[#C8A26A] hover:underline">Sign up</a>
+        </p>
       </motion.div>
     </div>
   );
